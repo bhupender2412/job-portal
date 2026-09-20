@@ -10,6 +10,8 @@ const {
   getRecruiterApplications,
   getRecruiterApplicationById,
   updateApplicationStatus,
+
+  getApplicationStatusForJob,
 } = require(
   "../controllers/applicationController",
 );
@@ -116,6 +118,19 @@ router.patch(
     updateApplicationStatusSchema,
   ),
   updateApplicationStatus,
+);
+
+// --------------------------------------------------
+// Job Seeker - Application Status For Job
+// --------------------------------------------------
+
+router.get(
+  "/jobs/:jobId/status",
+  protect,
+  authorize(
+    "jobseeker",
+  ),
+  getApplicationStatusForJob,
 );
 
 module.exports = router;

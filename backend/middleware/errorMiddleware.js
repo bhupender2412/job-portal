@@ -1,4 +1,5 @@
-const multer = require("multer");
+const multer =
+  require("multer");
 
 // --------------------------------------------------
 // Not Found
@@ -38,9 +39,9 @@ const errorHandler = (
     error.message ||
     "Internal server error";
 
-  // ----------------------------------------------
-  // Multer Errors
-  // ----------------------------------------------
+  // ------------------------------------------------
+  // Multer
+  // ------------------------------------------------
 
   if (
     error instanceof
@@ -56,24 +57,26 @@ const errorHandler = (
         "Resume file cannot exceed 2 MB";
     } else {
       message =
-        error.message;
+        "Invalid file upload";
     }
   }
 
-  // ----------------------------------------------
-  // Mongo Duplicate Key
-  // ----------------------------------------------
+  // ------------------------------------------------
+  // MongoDB Duplicate Key
+  // ------------------------------------------------
 
-  if (error.code === 11000) {
+  if (
+    error.code === 11000
+  ) {
     statusCode = 409;
 
     message =
       "A record with this value already exists";
   }
 
-  // ----------------------------------------------
+  // ------------------------------------------------
   // Invalid MongoDB ObjectId
-  // ----------------------------------------------
+  // ------------------------------------------------
 
   if (
     error.name ===
@@ -85,10 +88,38 @@ const errorHandler = (
       "Invalid resource ID";
   }
 
-  console.error(
-    "Unhandled error:",
-    error.message,
-  );
+  // ------------------------------------------------
+  // Production Error Protection
+  // ------------------------------------------------
+
+  if (
+    process.env.NODE_ENV ===
+      "production" &&
+    statusCode >= 500
+  ) {
+    message =
+      "Internal server error";
+  }
+
+  // ------------------------------------------------
+  // Logging
+  // ------------------------------------------------
+
+  if (
+    process.env.NODE_ENV ===
+    "production"
+  ) {
+    console.error(
+      "Unhandled error:",
+      error.message,
+    );
+  } else {
+    console.error(
+      "Unhandled error:",
+      error.stack ||
+        error.message,
+    );
+  }
 
   return res
     .status(statusCode)

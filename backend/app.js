@@ -1,3 +1,6 @@
+const helmet =
+  require("helmet");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -35,10 +38,35 @@ const {
   "./middleware/errorMiddleware",
 );
 
-const allowedOrigins = [
+const recruiterRoutes =
+  require("./routes/recruiterRoutes");
+
+// --------------------------------------------------
+// Allowed Frontend Origins
+// --------------------------------------------------
+
+const allowedOrigins = (
   process.env.CLIENT_URL ||
-    "http://localhost:5173",
-];
+  "http://localhost:5173"
+)
+  .split(",")
+  .map((origin) =>
+    origin.trim(),
+  )
+  .filter(Boolean);
+
+// --------------------------------------------------
+// Basic Security Headers
+// --------------------------------------------------
+
+app.disable(
+  "x-powered-by",
+);
+
+app.use(
+  helmet(),
+);
+
 
 // --------------------------------------------------
 // Middleware
@@ -48,39 +76,50 @@ app.use(
   cors({
     origin: (
       origin,
-      callback
+      callback,
     ) => {
+      // Allow requests without a browser origin,
+      // such as curl, Postman and server-to-server calls.
+      if (!origin) {
+        return callback(
+          null,
+          true,
+        );
+      }
+
       if (
-        !origin ||
         allowedOrigins.includes(
-          origin
+          origin,
         )
       ) {
         return callback(
           null,
-          true
+          true,
         );
       }
 
       return callback(
         new Error(
-          "Not allowed by CORS"
-        )
+          "Not allowed by CORS",
+        ),
       );
     },
 
     credentials: true,
-  })
+  }),
 );
 
 app.use(
-  express.json()
+  express.json({
+    limit: "100kb",
+  }),
 );
 
 app.use(
   express.urlencoded({
     extended: true,
-  })
+    limit: "100kb",
+  }),
 );
 
 // --------------------------------------------------
@@ -151,6 +190,11 @@ app.use(
 app.use(
   "/api/admin",
   adminRoutes,
+);
+
+app.use(
+  "/api/recruiter",
+  recruiterRoutes,
 );
 
 // --------------------------------------------------

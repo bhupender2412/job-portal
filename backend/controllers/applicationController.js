@@ -1065,6 +1065,77 @@ const updateApplicationStatus =
   };
 
 
+// --------------------------------------------------
+// Job Seeker - Check Application For Job
+// --------------------------------------------------
+
+const getApplicationStatusForJob =
+  async (
+    req,
+    res,
+  ) => {
+    try {
+      const {
+        jobId,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          jobId,
+        )
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message:
+              "Invalid job ID",
+          });
+      }
+
+      const application =
+        await Application.findOne({
+          job:
+            jobId,
+
+          applicant:
+            req.user._id,
+        }).select(
+          "_id status appliedAt",
+        );
+
+      return res
+        .status(200)
+        .json({
+          success: true,
+
+          hasApplied:
+            Boolean(
+              application,
+            ),
+
+          application:
+            application ||
+            null,
+        });
+    } catch (error) {
+      console.error(
+        "Check application status error:",
+        error.message,
+      );
+
+      return res
+        .status(500)
+        .json({
+          success: false,
+
+          message:
+            "Failed to check application status",
+        });
+    }
+  };
+
+
 module.exports = {
   applyToJob,
   getMyApplications,
@@ -1074,4 +1145,6 @@ module.exports = {
   getRecruiterApplications,
   getRecruiterApplicationById,
   updateApplicationStatus,
+
+  getApplicationStatusForJob,
 };

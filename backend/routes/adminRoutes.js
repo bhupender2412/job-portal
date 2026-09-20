@@ -15,6 +15,7 @@ const {
   getJobs,
   getJobById,
   moderateJob,
+
   getApplications,
   getApplicationById,
 } = require(
@@ -116,6 +117,7 @@ router.patch(
 );
 
 // --------------------------------------------------
+// --------------------------------------------------
 // Jobs
 // --------------------------------------------------
 
@@ -130,7 +132,7 @@ router.get(
 );
 
 router.patch(
-  "/jobs/:jobId/moderation",
+  "/jobs/:jobId/moderate",
   validateBody(
     updateJobModerationSchema,
   ),

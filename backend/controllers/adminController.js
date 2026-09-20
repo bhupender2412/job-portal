@@ -272,6 +272,10 @@ const getDashboardStats = async (
 // Admin - Get Users
 // --------------------------------------------------
 
+// --------------------------------------------------
+// Admin - Get Users
+// --------------------------------------------------
+
 const getUsers = async (
   req,
   res,
@@ -280,14 +284,17 @@ const getUsers = async (
     const {
       search,
       role,
-      status,
+      isActive,
       page = 1,
       limit = 10,
     } = req.query;
 
     const filter = {};
 
-    // Role filter
+    // --------------------------------------------------
+    // Role Filter
+    // --------------------------------------------------
+
     if (
       [
         "jobseeker",
@@ -298,20 +305,22 @@ const getUsers = async (
       filter.role = role;
     }
 
-    // Active / inactive filter
-    if (
-      status === "active"
-    ) {
-      filter.isActive = true;
-    }
+    // --------------------------------------------------
+    // Active / Inactive Filter
+    // --------------------------------------------------
 
     if (
-      status === "inactive"
+      isActive === "true" ||
+      isActive === "false"
     ) {
-      filter.isActive = false;
+      filter.isActive =
+        isActive === "true";
     }
 
+    // --------------------------------------------------
     // Search
+    // --------------------------------------------------
+
     if (search?.trim()) {
       const keyword =
         new RegExp(
@@ -347,6 +356,10 @@ const getUsers = async (
       ];
     }
 
+    // --------------------------------------------------
+    // Pagination
+    // --------------------------------------------------
+
     const currentPage =
       Math.max(
         Number(page) || 1,
@@ -361,6 +374,10 @@ const getUsers = async (
         ),
         50,
       );
+
+    // --------------------------------------------------
+    // Query
+    // --------------------------------------------------
 
     const [
       users,
@@ -387,6 +404,10 @@ const getUsers = async (
           filter,
         ),
       ]);
+
+    // --------------------------------------------------
+    // Response
+    // --------------------------------------------------
 
     return res
       .status(200)

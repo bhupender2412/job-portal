@@ -28,6 +28,12 @@ const {
   "../middleware/authMiddleware",
 );
 
+const {
+  authLimiter,
+} = require(
+  "../middleware/securityMiddleware",
+);
+
 const router =
   express.Router();
 
@@ -37,6 +43,7 @@ const router =
 
 router.post(
   "/register",
+  authLimiter,
   validateBody(
     registerSchema,
   ),
@@ -45,6 +52,7 @@ router.post(
 
 router.post(
   "/login",
+  authLimiter,
   validateBody(
     loginSchema,
   ),
